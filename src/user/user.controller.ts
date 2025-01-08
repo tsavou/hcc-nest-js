@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Put, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from './entities/user.entity';
+import { UserEntity, UserRole } from './entities/user.entity';
+import { AuthGuard } from '../guards/auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
 
 @Controller('user')
 export class UserController {
@@ -13,23 +14,15 @@ export class UserController {
     return await this.userService.getAllUsers();
   }
 
-  @Post()
-  async create(@Body() user: CreateUserDto): Promise<UserEntity> {
-    return await this.userService.create(user);
-  }
-
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  async getOneUser(@Param('id') id: string) {
+    return await this.userService.findOne(Number(id));
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(['admin'])
+  @Put('validate/:id')
+  async validateUser(@Param('id') id: string, @Body('role') role: UserRole) {
+    return await this.userService.validateAccount(Number(id), role);
   }
 }

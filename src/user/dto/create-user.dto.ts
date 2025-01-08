@@ -1,17 +1,4 @@
-import {
-  IsString,
-  IsEmail,
-  IsEnum,
-  IsBoolean,
-  IsOptional,
-} from 'class-validator';
-
-export enum UserRole {
-  COACH = 'coach',
-  CONTRIBUTOR = 'contributeur',
-  PLAYER = 'joueur',
-  ADMIN = 'admin',
-}
+import { IsString, IsEmail, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -24,12 +11,6 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
+  @MinLength(6)
   password: string;
-
-  @IsEnum(UserRole)
-  role: UserRole;
-
-  @IsBoolean()
-  @IsOptional()
-  isValidated?: boolean;
 }

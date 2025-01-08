@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entities/user.entity';
+import { UserEntity, UserRole } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -16,18 +18,43 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async create(UserData: CreateUserDto): Promise<UserEntity> {
-    const user = this.userRepository.create(UserData);
-    return this.userRepository.save(user);
+  async findOne(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with id: ${userId} does not exist`);
+    }
+    return user;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  //funcntion pour valider un compte et lui attribuer un role
+  async validateAccount(userId: number, role: UserRole): Promise<any> {
+    const user = await this.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException(
+        `Unable to validate: user with id: ${userId} does not exist`,
+      );
+    }
+
+    if (!role) {
+      throw new BadRequestException(
+        `Role is required and must be a valid value ${role}`,
+      );
+    }
+
+    user.role = role;
+    user.isValidated = true;
+
+    await this.userRepository.save(user);
+
+    return `User ${user.firstName} ${user.lastName} is now validated with the role ${user.role}`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  /* update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
-  }
+  }*/
 
   remove(id: number) {
     return `This action removes a #${id} user`;

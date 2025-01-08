@@ -1,4 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+export enum UserRole {
+  COACH = 'coach',
+  CONTRIBUTOR = 'contributeur',
+  PLAYER = 'joueur',
+  ADMIN = 'admin',
+}
 
 @Entity()
 export class UserEntity {
@@ -17,8 +29,8 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column()
-  role: 'coach' | 'contributeur' | 'joueur' | 'admin';
+  @Column({ default: UserRole.PLAYER })
+  role: UserRole;
 
   @Column({ default: false })
   isValidated: boolean;
