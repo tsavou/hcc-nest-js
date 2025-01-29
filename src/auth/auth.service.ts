@@ -57,6 +57,7 @@ export class AuthService {
     const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN');
     const token = this.jwtService.sign(
       {
+        id: user.id,
         email: user.email,
         role: user.role,
         isValidated: user.isValidated,
