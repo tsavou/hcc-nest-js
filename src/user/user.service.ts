@@ -28,7 +28,7 @@ export class UserService {
     return user;
   }
 
-  //funcntion pour valider un compte et lui attribuer un role
+  //function pour valider un compte et lui attribuer un role
   async validateAccount(userId: number, role: UserRole): Promise<any> {
     const user = await this.findOne(userId);
 
@@ -38,9 +38,9 @@ export class UserService {
       );
     }
 
-    if (!role) {
+    if (!role || !Object.values(UserRole).includes(role)) {
       throw new BadRequestException(
-        `Role is required and must be a valid value ${role}`,
+        `Role is required and must be a valid value: ${Object.values(UserRole).join(' OR ')}`,
       );
     }
 
@@ -50,13 +50,5 @@ export class UserService {
     await this.userRepository.save(user);
 
     return `User ${user.firstName} ${user.lastName} is now validated with the role ${user.role}`;
-  }
-
-  /* update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }*/
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

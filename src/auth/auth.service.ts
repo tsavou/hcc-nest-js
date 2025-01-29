@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -36,32 +36,41 @@ export class AuthService {
       },
     });
 
+    if (!user) {
+      throw new UnauthorizedException('Invalid email');
+    }
+
     const isAuthenticated = await bcrypt.compare(
       UserData.password,
       user.password,
     );
 
-    if (isAuthenticated) {
-      const secret = this.configService.get<string>('JWT_SECRET');
-      const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN');
-      const token = this.jwtService.sign(
-        {
-          email: user.email,
-          role: user.role,
-        },
-        {
-          secret,
-          expiresIn,
-        },
-      );
-
-      return {
-        message: "You're Logged in",
-        role: user.role,
-        access_token: token,
-      };
+    if (!isAuthenticated) {
+      throw new UnauthorizedException('Invalid password');
     }
 
-    return;
+    if (!user.isValidated) {
+      throw new UnauthorizedException('Account not validated');
+    }
+
+    const secret = this.configService.get<string>('JWT_SECRET');
+    const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN');
+    const token = this.jwtService.sign(
+      {
+        email: user.email,
+        role: user.role,
+        isValidated: user.isValidated,
+      },
+      {
+        secret,
+        expiresIn,
+      },
+    );
+
+    return {
+      message: "You're Logged in",
+      role: user.role,
+      access_token: token,
+    };
   }
 }

@@ -19,6 +19,7 @@ export class UserController {
     return await this.userService.findOne(Number(id));
   }
 
+  //permet à un admin de valider un compte et lui attribuer un role
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(['admin'])
   @Put('validate/:id')
