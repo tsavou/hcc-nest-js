@@ -1,9 +1,11 @@
 import {
   Column,
   CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+  Entity, ManyToMany, OneToMany,
+  PrimaryGeneratedColumn
+} from "typeorm";
+import { News } from "../../news/entities/news.entity";
+import { Match } from "../../match/entities/match.entity";
 
 export enum UserRole {
   COACH = 'coach',
@@ -37,4 +39,13 @@ export class UserEntity {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => News, (news) => news.user)
+  news: News[];
+
+  @OneToMany(() => Match, (match) => match.createdBy)
+  matchesCreated: Match[];
+
+  @ManyToMany(() => Match, (match) => match.players)
+  matches: Match[];
 }

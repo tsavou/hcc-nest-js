@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity()
 export class News {
@@ -12,8 +13,11 @@ export class News {
   content: string;
 
   @Column({
-    type: 'timestamp',
-    default: Date.now,
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
+
+  @ManyToOne(() => UserEntity, (user) => user.news)
+  user: UserEntity;
 }
