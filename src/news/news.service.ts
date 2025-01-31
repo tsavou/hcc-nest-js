@@ -32,9 +32,14 @@ export class NewsService {
   }
 
   async findOne(id: number) {
-    return await this.newsRepository.findOne({
+    const news = await this.newsRepository.findOne({
       where: { id: id },
       relations: ['user'],
     });
+
+    if (!news) {
+      throw new NotFoundException(`News with id: ${id} does not exist`);
+    }
+    return await this.newsRepository.save(news);
   }
 }

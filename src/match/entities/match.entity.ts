@@ -19,7 +19,7 @@ export class Match {
   @Column()
   adversary: string;
 
-  @Column()
+  @Column({ default: 'TBD' })
   score: string;
 
   @Column()
