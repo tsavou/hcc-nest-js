@@ -3,12 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   Req,
-  UseGuards, Put
-} from "@nestjs/common";
+  UseGuards,
+  Put,
+} from '@nestjs/common';
 import { MatchService } from './match.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
@@ -30,24 +29,38 @@ export class MatchController {
   }
 
   @Get()
-  findAll() {
-    return this.matchService.findAll();
+  async findAll() {
+    return await this.matchService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.matchService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.matchService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles([UserRole.COACH])
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateMatchDto: UpdateMatchDto) {
-    return this.matchService.update(+id, updateMatchDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateMatchDto: UpdateMatchDto,
+  ) {
+    return await this.matchService.update(+id, updateMatchDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.matchService.remove(+id);
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles([UserRole.PLAYER])
+  @Put(':matchId/join')
+  async join(@Param('matchId') matchId: string, @Req() req) {
+    const userId = req.user.id;
+    return await this.matchService.registerForMatch(+matchId, userId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles([UserRole.PLAYER])
+  @Put(':matchId/quit')
+  async quit(@Param('matchId') matchId: string, @Req() req) {
+    const userId = req.user.id;
+    return await this.matchService.deregisterForMatch(+matchId, userId);
   }
 }

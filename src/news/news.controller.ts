@@ -27,12 +27,12 @@ export class NewsController {
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.newsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.newsService.findOne(+id);
   }
 }
